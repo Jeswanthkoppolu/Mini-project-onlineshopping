@@ -1,0 +1,101 @@
+{% extends 'Admin/Admin_Base_Login.html' %}
+
+{% block body %}
+<style>
+    .home-wrapper {
+        min-height: calc(100vh - 76px);
+        background: linear-gradient(135deg, #f8fbff 0%, #eaf2ff 45%, #dde9ff 100%);
+    }
+    .home-hero {
+        background: #0b172f;
+        color: #ffffff;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(11, 23, 47, 0.25);
+    }
+    .home-card {
+        background: #ffffff;
+        border-radius: 1rem;
+        box-shadow: 0 12px 30px rgba(31, 73, 125, 0.15);
+    }
+    .btn-register {
+        background-color: #19a7ce;
+        color: #ffffff;
+    }
+    .btn-register:hover {
+        background-color: #1487a5;
+        color: #ffffff;
+    }
+</style>
+
+<section class="home-wrapper d-flex align-items-center py-4 py-md-5">
+    <div class="container">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-7">
+                <div class="home-hero">
+                    <h1 class="display-6 fw-bold">Welcome to OES</h1>
+                    <p class="lead mb-2">Online E-Commerce System for smooth shopping and fast checkout.</p>
+                    <p class="mb-0 text-light-emphasis">Login with your username and password to continue.</p>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="home-card p-4 p-md-5">
+                    <h3 class="text-center text-primary mb-4">User Login</h3>
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags|default:'info' }} py-2" role="alert">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="usernameInput" class="form-label">Username</label>
+                            <input type="text" name="name" class="form-control" id="usernameInput" placeholder="Enter your username" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="passwordInput" class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" id="passwordInput" placeholder="Enter your password" required>
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex">
+                            <button type="submit" name="login" class="btn btn-primary w-100">Login</button>
+                            <a class="btn btn-register w-100" href="{% url 'Customer_Register' %}">Registration</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-4 py-md-5" style="background:#f4f8ff;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0">Featured Products</h4>
+            <small class="text-muted">{{ total_products }} products available | Login to add items to cart</small>
+        </div>
+        <div class="row g-4">
+            {% for p in featured_products %}
+                <div class="col-sm-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        {% if p.p_Image %}
+                            <img src="{{ p.p_Image.url }}" class="card-img-top" alt="{{ p.P_Name }}" style="height:220px;object-fit:cover;">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center bg-light text-secondary" style="height:220px;">No image</div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h6 class="mb-1">{{ p.P_Name }}</h6>
+                            <p class="text-muted small mb-2">{{ p.category.name }}</p>
+                            <p class="mb-0"><strong>Rs {{ p.P_Amount }}</strong></p>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info mb-0">No products available right now.</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

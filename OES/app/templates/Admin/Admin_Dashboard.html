@@ -1,0 +1,26 @@
+{% extends 'Admin/Admin_Base.html' %}
+
+{% block body %}
+
+<center><u><h3 class="mt-5">Welcome To OES</h3></u></center>
+
+<div class="d-flex justify-content-evenly ms-5 mt-5">
+
+    <div class="bg-info text-white p-4 text-center rounded-4 me-2">
+        <h4>Account Holders</h4>
+        <p>{{user}}</p>
+    </div>
+
+     <div class="bg-primary text-white p-4 text-center rounded-4 me-2">
+        <h4>Total Products</h4>
+        <p>{{ product_count }}</p>
+    </div>
+
+         <div class="bg-success text-white p-4 text-center rounded-4 me-2">
+        <h4>Total Revenue</h4>
+        <p>{{ Revenue }}</p>
+    </div>
+
+</div>
+
+{% endblock %}

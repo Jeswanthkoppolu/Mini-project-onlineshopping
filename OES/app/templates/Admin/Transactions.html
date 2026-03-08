@@ -1,0 +1,32 @@
+{% extends 'Admin/Admin_Base.html' %}
+
+{% block body %}
+
+<center><u><h3 class="mt-5">All Transactions </h3></u></center>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Transaction Id</th>
+      <th scope="col">User Id</th>
+      <th scope="col">Product Name</th>
+      <th scope="col">Amount</th>
+      <th scope="col">Date/Time</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for i in order %}
+    <tr>
+      <th scope="row">{{i.TID}}</th>
+      <td>{{i.User_ID}}</td>
+      <td>{{i.P_Name}}</td>
+      <td>{{i.P_Amount}}</td>
+      <td>{{i.Date_Time}}</td>
+    </tr>
+    {% endfor %}
+
+    
+  </tbody>
+</table>
+
+{% endblock %}

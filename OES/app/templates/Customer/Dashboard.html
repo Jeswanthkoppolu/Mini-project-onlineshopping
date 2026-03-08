@@ -1,0 +1,310 @@
+{% extends 'Customer/Customer_Base.html' %}
+
+{% block body %}
+
+<style>
+  :root {
+    --dash-bg: #f5f8ff;
+    --dash-card: #ffffff;
+    --dash-primary: #0f4c81;
+    --dash-accent: #14b8a6;
+    --dash-text: #1d2a39;
+    --dash-muted: #5f6d7a;
+  }
+  .dash-page {
+    background: radial-gradient(circle at top right, #dff1ff 0%, var(--dash-bg) 48%, #ecfff9 100%);
+    min-height: calc(100vh - 90px);
+    padding: 1.25rem 0 2rem;
+  }
+  .hero {
+    border: 0;
+    border-radius: 1rem;
+    background: linear-gradient(120deg, #102a43 0%, #1f4f82 55%, #237ea5 100%);
+    color: #fff;
+    box-shadow: 0 14px 30px rgba(13, 35, 60, 0.25);
+  }
+  .hero .chip {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    padding: .35rem .85rem;
+    display: inline-block;
+    font-size: .85rem;
+  }
+  .stat-card {
+    background: var(--dash-card);
+    border: 0;
+    border-radius: .9rem;
+    box-shadow: 0 8px 20px rgba(20, 42, 77, 0.08);
+  }
+  .stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--dash-primary);
+  }
+  .filters-card, .cart-card, .product-card {
+    border: 0;
+    border-radius: .9rem;
+    box-shadow: 0 8px 20px rgba(20, 42, 77, 0.08);
+    background: var(--dash-card);
+  }
+  .product-card {
+    transition: transform .22s ease, box-shadow .22s ease;
+  }
+  .product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 28px rgba(14, 35, 64, 0.16);
+  }
+  .product-img {
+    height: 190px;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    border-top-left-radius: .9rem;
+    border-top-right-radius: .9rem;
+  }
+  .product-fallback {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    color: #6c757d;
+  }
+  .price-pill {
+    background: #ebf7ff;
+    color: #005b9a;
+    border-radius: 999px;
+    padding: .25rem .7rem;
+    font-weight: 600;
+    font-size: .85rem;
+  }
+  .rating-stars {
+    color: #f2b01e;
+    font-size: .95rem;
+    letter-spacing: 1px;
+  }
+</style>
+
+<section class="dash-page">
+  <div class="container-fluid">
+    {% for i in detail %}
+      <div class="card hero mb-4">
+        <div class="card-body p-4 p-md-5">
+          <span class="chip mb-2">Customer Dashboard</span>
+          <h2 class="mb-1">Welcome back, {{ i.U_Name }}</h2>
+          <p class="mb-0 text-white-50">Explore products, manage cart items, and complete orders faster.</p>
+        </div>
+      </div>
+    {% endfor %}
+
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card stat-card p-3">
+          <div class="text-muted small">Products</div>
+          <div class="stat-value">{{ product_count }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card p-3">
+          <div class="text-muted small">Categories</div>
+          <div class="stat-value">{{ category_count }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card p-3">
+          <div class="text-muted small">Cart Items</div>
+          <div class="stat-value">{{ cart_count }}</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card stat-card p-3">
+          <div class="text-muted small">My Orders</div>
+          <div class="stat-value">{{ order_count }}</div>
+        </div>
+      </div>
+    </div>
+
+    <form class="card filters-card p-3 p-md-4 mb-4" method="get">
+      <div class="row g-2">
+        <div class="col-md-5">
+          <input id="searchInput" name="q" class="form-control" type="text" placeholder="Search by product name or ID" value="{{ query }}">
+        </div>
+        <div class="col-md-4">
+          <select id="categoryFilter" name="category" class="form-select">
+            <option value="all">All Categories</option>
+            {% for c in categories %}
+              <option value="{{ c.name|lower }}" {% if selected_category == c.name|lower %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select id="sortSelect" name="sort" class="form-select">
+            <option value="default" {% if selected_sort == 'default' %}selected{% endif %}>Sort: Default</option>
+            <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+            <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+          </select>
+        </div>
+        <div class="col-12 d-flex gap-2 mt-2">
+          <button type="submit" class="btn btn-primary">Search</button>
+          <a href="{% url 'Customer_Dashboard' %}" class="btn btn-outline-secondary">Reset</a>
+        </div>
+      </div>
+    </form>
+
+    <div class="row g-4">
+      <div class="col-xl-9">
+        <div class="row g-4" id="productGrid">
+          {% for i in product %}
+            <div class="col-md-6 col-xl-4 product-item" data-name="{{ i.P_Name|lower }}" data-id="{{ i.P_ID|lower }}" data-category="{{ i.category.name|lower }}" data-price="{{ i.P_Amount }}">
+              <div class="card product-card h-100">
+                {% if i.p_Image %}
+                  <img src="{{ i.p_Image.url }}" class="product-img" alt="{{ i.P_Name }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <div class="product-img product-fallback">No image</div>
+                {% else %}
+                  <div class="product-img product-fallback" style="display:flex;">No image</div>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">{{ i.P_Name }}</h6>
+                    <span class="price-pill">Rs {{ i.P_Amount }}</span>
+                  </div>
+                  <div class="mb-2">
+                    <span class="rating-stars">
+                      {% if i.avg_rating %}
+                        {{ i.avg_rating|floatformat:1 }} / 5
+                      {% else %}
+                        No rating yet
+                      {% endif %}
+                    </span>
+                    <span class="small text-muted">({{ i.rating_count }} reviews)</span>
+                  </div>
+                  <p class="mb-1 text-muted small">ID: {{ i.P_ID }}</p>
+                  <p class="mb-3 text-muted small">Category: {{ i.category.name }}</p>
+                  <p class="small text-secondary flex-grow-1">{{ i.P_Info|truncatechars:85 }}</p>
+                  <div class="d-flex gap-2 mt-2">
+                    <a class="btn btn-primary w-100" href="{% url 'add_to_cart' i.id %}">Add to Cart</a>
+                    <a class="btn btn-outline-secondary w-100" href="{% url 'Cart_Item' %}">View Cart</a>
+                  </div>
+                  <form method="post" class="mt-3 border-top pt-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="rate_product" value="1">
+                    <input type="hidden" name="product_id" value="{{ i.id }}">
+                    <div class="mb-2">
+                      <label class="form-label small mb-1">Rate this product</label>
+                      <select class="form-select form-select-sm" name="rating" required>
+                        <option value="">Select rating</option>
+                        <option value="5" {% if i.user_rating and i.user_rating.rating == 5 %}selected{% endif %}>5 - Excellent</option>
+                        <option value="4" {% if i.user_rating and i.user_rating.rating == 4 %}selected{% endif %}>4 - Very Good</option>
+                        <option value="3" {% if i.user_rating and i.user_rating.rating == 3 %}selected{% endif %}>3 - Good</option>
+                        <option value="2" {% if i.user_rating and i.user_rating.rating == 2 %}selected{% endif %}>2 - Average</option>
+                        <option value="1" {% if i.user_rating and i.user_rating.rating == 1 %}selected{% endif %}>1 - Poor</option>
+                      </select>
+                    </div>
+                    <div class="mb-2">
+                      <input type="text" name="review" class="form-control form-control-sm" maxlength="300" placeholder="Write short review (optional)" value="{% if i.user_rating %}{{ i.user_rating.review }}{% endif %}">
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-success w-100">
+                      {% if i.user_rating %}Update Rating{% else %}Submit Rating{% endif %}
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <div class="col-12">
+              <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                <h5 class="mb-1">No products found</h5>
+                <p class="text-muted mb-3">Try a different search or reset filters.</p>
+                <a href="{% url 'Customer_Dashboard' %}" class="btn btn-outline-primary">Show All Products</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <div id="liveNoResults" class="card border-0 shadow-sm rounded-4 p-4 text-center mt-3" style="display:none;">
+          <h5 class="mb-1">No products found</h5>
+          <p class="text-muted mb-0">Try a different search text.</p>
+        </div>
+      </div>
+
+      <div class="col-xl-3">
+        <div class="card cart-card p-3 mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">Quick Cart Preview</h6>
+            <a href="{% url 'Cart_Item' %}" class="btn btn-sm btn-outline-primary">Open Cart</a>
+          </div>
+          {% if cart_items %}
+            {% for cart in cart_items %}
+              <div class="border rounded p-2 mb-2">
+                <div class="fw-semibold">{{ cart.product.P_Name }}</div>
+                <div class="small text-muted">Qty: {{ cart.quantity }} | Rs {{ cart.product.P_Amount }}</div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="text-muted small mb-0">No items in cart yet. Add products to start shopping.</p>
+          {% endif %}
+        </div>
+        <div class="card cart-card p-3">
+          <h6 class="mb-2">Quick Actions</h6>
+          <div class="d-grid gap-2">
+            <a class="btn btn-outline-dark" href="{% url 'Order_Detail' %}">View My Orders</a>
+            <a class="btn btn-outline-dark" href="{% url 'Customer_Details' %}">Edit Profile</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const searchInput = document.getElementById("searchInput");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const sortSelect = document.getElementById("sortSelect");
+    const productGrid = document.getElementById("productGrid");
+    const noResults = document.getElementById("liveNoResults");
+    const items = Array.from(productGrid.querySelectorAll(".product-item"));
+
+    function applyLiveFilters() {
+      const term = (searchInput.value || "").toLowerCase().trim();
+      const category = (categoryFilter.value || "all").toLowerCase().trim();
+
+      items.forEach((item) => {
+        const name = (item.dataset.name || "").toLowerCase();
+        const pid = (item.dataset.id || "").toLowerCase();
+        const itemCategory = (item.dataset.category || "").toLowerCase();
+
+        const searchMatch = !term || name.includes(term) || pid.includes(term);
+        const categoryMatch = category === "all" || itemCategory === category;
+        item.style.display = searchMatch && categoryMatch ? "" : "none";
+      });
+    }
+
+    function applyLiveSort() {
+      const mode = sortSelect.value;
+      const visible = items.filter((item) => item.style.display !== "none");
+      visible.sort((a, b) => {
+        const pa = parseFloat(a.dataset.price || "0");
+        const pb = parseFloat(b.dataset.price || "0");
+        if (mode === "price_asc") return pa - pb;
+        if (mode === "price_desc") return pb - pa;
+        return 0;
+      });
+      visible.forEach((item) => productGrid.appendChild(item));
+    }
+
+    function refreshLive() {
+      applyLiveFilters();
+      applyLiveSort();
+      const hasVisible = items.some((item) => item.style.display !== "none");
+      noResults.style.display = hasVisible ? "none" : "block";
+    }
+
+    searchInput.addEventListener("input", refreshLive);
+    categoryFilter.addEventListener("change", refreshLive);
+    sortSelect.addEventListener("change", refreshLive);
+    refreshLive();
+  })();
+</script>
+
+{% endblock %}
+

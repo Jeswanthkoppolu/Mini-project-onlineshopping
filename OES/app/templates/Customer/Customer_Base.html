@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>OES Customer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --page-bg: #eef4ff;
+        }
+        body {
+            background: var(--page-bg);
+        }
+        .top-nav {
+            background: linear-gradient(90deg, #071525 0%, #102b46 55%, #154a64 100%);
+            box-shadow: 0 8px 24px rgba(3, 19, 36, 0.3);
+        }
+        .brand-pill {
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 999px;
+            padding: 0.2rem 0.8rem;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: .5px;
+            text-decoration: none;
+        }
+        .nav-link-quick {
+            color: #d9ecff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .nav-link-quick:hover {
+            color: #fff;
+        }
+        .menu-link {
+            display: block;
+            text-decoration: none;
+            color: #19324a;
+            font-weight: 600;
+            background: #f4f8ff;
+            border-radius: .7rem;
+            padding: .7rem .9rem;
+            margin-bottom: .6rem;
+            transition: all .2s ease;
+        }
+        .menu-link:hover {
+            background: #dfefff;
+            transform: translateX(2px);
+        }
+        .page-wrap {
+            min-height: calc(100vh - 80px);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark top-nav sticky-top">
+        <div class="container-fluid px-3 px-md-4">
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#customerMenu" aria-controls="customerMenu">
+                    Menu
+                </button>
+                <a class="brand-pill" href="{% url 'Customer_Dashboard' %}">OES</a>
+                <span class="text-white fw-semibold d-none d-md-inline">Customer Portal</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <a class="nav-link-quick d-none d-md-inline" href="{% url 'Customer_Dashboard' %}">Home</a>
+                <a class="nav-link-quick d-none d-md-inline" href="{% url 'Cart_Item' %}">Cart</a>
+                <a class="nav-link-quick d-none d-md-inline" href="{% url 'Order_Detail' %}">Orders</a>
+                <a href="{% url 'sessionlogout' %}" class="btn btn-sm btn-danger">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="customerMenu" aria-labelledby="customerMenuLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="customerMenuLabel">Navigate</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <a href="{% url 'Customer_Dashboard' %}" class="menu-link">Dashboard</a>
+            <a href="{% url 'Cart_Item' %}" class="menu-link">Cart Items</a>
+            <a href="{% url 'Order_Detail' %}" class="menu-link">Order History</a>
+            <a href="{% url 'Customer_Details' %}" class="menu-link">Profile Settings</a>
+        </div>
+    </div>
+
+    <main class="page-wrap px-2 px-md-3 py-3">
+        {% if messages %}
+            <div class="container-fluid mb-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} mb-2" role="alert">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block body %}
+        {% endblock %}
+    </main>
+</body>
+</html>
